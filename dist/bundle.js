@@ -344,15 +344,15 @@ __webpack_require__.r(__webpack_exports__);
  * @Date: 2022-10-02 12:29:32
  * @LastEditors: onino
  * @LastEditTime: 2022-10-02 12:58:15
- * @Description: 请填写简介
+ * @Description: 判断是类组件 还是函数组件 并返回对应的 实例对象
  */
 var createReactInstance = function createReactInstance(fiber) {
   var instance = null;
 
   if (fiber.tag === "class_component") {
-    instance = new fiber.type(fiber.props);
+    instance = new fiber.type(fiber.props); // 类组件 返回实例
   } else {
-    instance = fiber.type;
+    instance = fiber.type; // 函数组件 返回函数本身
   }
 
   return instance;
@@ -567,7 +567,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @Author: onino
  * @Date: 2022-10-02 09:46:29
  * @LastEditors: onino
- * @LastEditTime: 2022-10-02 15:50:28
+ * @LastEditTime: 2022-10-02 21:28:10
  * @Description: 请填写简介
  */
 
@@ -588,7 +588,6 @@ var commitAllWork = function commitAllWork(fiber) {
   /**
    * 循环 effects 数组 构建 DOM 节点树
    */
-  // 初始渲染
   fiber.effects.forEach(function (item) {
     if (item.tag === "class_component") {
       item.stateNode.__fiber = item;
@@ -623,7 +622,7 @@ var commitAllWork = function commitAllWork(fiber) {
 
       var parentFiber = item.parent;
       /**
-       * 找到普通节点父级 赔出组件父级
+       * 找到普通节点父级 排除组件父级
        * 因为组件父级时不能直接追加真实 DOM 节点的
        */
 
@@ -636,6 +635,7 @@ var commitAllWork = function commitAllWork(fiber) {
 
 
       if (_fiber.tag === "host_component") {
+        console.log(_fiber.stateNode);
         parentFiber.stateNode.appendChild(_fiber.stateNode);
       }
     }
@@ -678,7 +678,8 @@ var getFirstTask = function getFirstTask() {
     child: null,
     alternate: task.dom.__rootFibercontainer
   };
-};
+}; // 构建子节点
+
 
 var reconcileChildren = function reconcileChildren(fiber, children) {
   /**
@@ -782,7 +783,8 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
     } else if (element) {
       // 为 fiber 添加下一个兄弟 fiber
       prevFiber.sibling = newFiber;
-    }
+    } // 更新 备份节点
+
 
     if (alternate && alternate.sibling) {
       alternate = alternate.sibling;
@@ -815,6 +817,7 @@ var executeTask = function executeTask(fiber) {
   } else if (fiber.tag === "function_component") {
     reconcileChildren(fiber, fiber.stateNode(fiber.props));
   } else {
+    // 普通节点
     reconcileChildren(fiber, fiber.props.children);
   }
   /**
@@ -1014,7 +1017,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
  * @Author: onino
  * @Date: 2022-10-02 09:15:31
  * @LastEditors: onino
- * @LastEditTime: 2022-10-02 15:14:41
+ * @LastEditTime: 2022-10-02 21:28:33
  * @Description: 请填写简介
  */
 
@@ -1069,14 +1072,16 @@ var Greating = /*#__PURE__*/function (_Component) {
   }]);
 
   return Greating;
-}(_react__WEBPACK_IMPORTED_MODULE_0__.Component);
+}(_react__WEBPACK_IMPORTED_MODULE_0__.Component); // render(<Greating title="奥利给" />, root)
 
-(0,_react__WEBPACK_IMPORTED_MODULE_0__.render)( /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__["default"].createElement(Greating, {
-  title: "\u5965\u5229\u7ED9"
-}), root); // function FnComponent(props) {
-//     return <div> {props.title} Fncomponent</div>
-// }
-// render(<FnComponent title="hello " />, root)
+
+function FnComponent(props) {
+  return /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__["default"].createElement("div", null, " ", props.title, " Fncomponent");
+}
+
+(0,_react__WEBPACK_IMPORTED_MODULE_0__.render)( /*#__PURE__*/_react__WEBPACK_IMPORTED_MODULE_0__["default"].createElement(FnComponent, {
+  title: "hello "
+}), root);
 })();
 
 /******/ })()

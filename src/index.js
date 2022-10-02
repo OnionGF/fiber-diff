@@ -2,7 +2,7 @@
  * @Author: onino
  * @Date: 2022-10-02 09:15:31
  * @LastEditors: onino
- * @LastEditTime: 2022-10-02 15:14:41
+ * @LastEditTime: 2022-10-02 21:28:33
  * @Description: 请填写简介
  */
 import React, { render, Component } from './react'
@@ -46,10 +46,10 @@ class Greating extends Component {
         )
     }
 }
-render(<Greating title="奥利给" />, root)
+// render(<Greating title="奥利给" />, root)
 
-// function FnComponent(props) {
-//     return <div> {props.title} Fncomponent</div>
-// }
+function FnComponent(props) {
+    return <div> {props.title} Fncomponent</div>
+}
 
-// render(<FnComponent title="hello " />, root)
+render(<FnComponent title="hello " />, root)

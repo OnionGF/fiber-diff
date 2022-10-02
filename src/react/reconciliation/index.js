@@ -2,7 +2,7 @@
  * @Author: onino
  * @Date: 2022-10-02 09:46:29
  * @LastEditors: onino
- * @LastEditTime: 2022-10-02 15:50:28
+ * @LastEditTime: 2022-10-02 21:28:10
  * @Description: 请填写简介
  */
 
@@ -24,7 +24,6 @@ const commitAllWork = fiber => {
     /**
      * 循环 effects 数组 构建 DOM 节点树
      */
-    // 初始渲染
     fiber.effects.forEach(item => {
         if (item.tag === "class_component") {
             item.stateNode.__fiber = item
@@ -60,7 +59,7 @@ const commitAllWork = fiber => {
              */            
             let parentFiber = item.parent
             /**
-             * 找到普通节点父级 赔出组件父级
+             * 找到普通节点父级 排除组件父级
              * 因为组件父级时不能直接追加真实 DOM 节点的
              */            
             while (
@@ -73,6 +72,7 @@ const commitAllWork = fiber => {
              * 如果子节点是普通节点 找到父级 将子节点追加到父级中
              */            
             if(fiber.tag === "host_component") {
+                console.log(fiber.stateNode)
                 parentFiber.stateNode.appendChild(fiber.stateNode)
             }
         }
@@ -114,6 +114,7 @@ const getFirstTask = () => {
     }
 }
 
+// 构建子节点
 const reconcileChildren = (fiber, children) => {
     /**
     * children 可能对象 也可能是数组
@@ -213,6 +214,7 @@ const reconcileChildren = (fiber, children) => {
             prevFiber.sibling = newFiber
         }
         
+        // 更新 备份节点
         if (alternate && alternate.sibling) {
             alternate = alternate.sibling
         } else {
@@ -248,6 +250,7 @@ const executeTask = fiber => {
     } else if (fiber.tag === "function_component") {
         reconcileChildren(fiber, fiber.stateNode(fiber.props))
     } else {
+        // 普通节点
         reconcileChildren(fiber, fiber.props.children)
     }
 
