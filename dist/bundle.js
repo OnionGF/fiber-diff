@@ -567,12 +567,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @Author: onino
  * @Date: 2022-10-02 09:46:29
  * @LastEditors: onino
- * @LastEditTime: 2022-10-02 15:31:23
+ * @LastEditTime: 2022-10-02 15:50:28
  * @Description: 请填写简介
  */
 
 
+/**
+ *  任务队列
+ */
+
 var taskQueue = (0,_misc__WEBPACK_IMPORTED_MODULE_0__.createTaskQueue)();
+/**
+ * 要执行的子任务
+ */
+
 var subTask = null;
 var pendingCommit = null;
 
@@ -604,12 +612,28 @@ var commitAllWork = function commitAllWork(fiber) {
         item.parent.stateNode.replaceChild(item.stateNode, item.alternate.stateNode);
       }
     } else if (item.effectTag === 'placement') {
+      /**
+       * 向页面中追加节点
+       * 当前要追加的子节点
+       */
       var _fiber = item;
+      /**
+       * 当前要追加的子节点的父级
+       */
+
       var parentFiber = item.parent;
+      /**
+       * 找到普通节点父级 赔出组件父级
+       * 因为组件父级时不能直接追加真实 DOM 节点的
+       */
 
       while (parentFiber.tag === "class_component" || parentFiber.tag === "function_component") {
         parentFiber = parentFiber.parent;
       }
+      /**
+       * 如果子节点是普通节点 找到父级 将子节点追加到父级中
+       */
+
 
       if (_fiber.tag === "host_component") {
         parentFiber.stateNode.appendChild(_fiber.stateNode);
@@ -662,10 +686,30 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
   * 将 children 转换成数组
   */
   var arrifiedChildren = (0,_misc__WEBPACK_IMPORTED_MODULE_0__.arrified)(children);
+  /**
+   * 循环 childrend 使用的索引
+   */
+
   var index = 0;
+  /**
+   * children 数组中元素的个数
+   */
+
   var numberOfElements = arrifiedChildren.length;
+  /**
+   * 循环过程中的循环项 就是子节点的 virtualDOM 对象
+   */
+
   var element = null;
+  /**
+   * 子级 fiber 对象
+   */
+
   var newFiber = null;
+  /**
+   * 上一个兄弟 fiber 对象
+   */
+
   var prevFiber = null;
   var alternate = null;
 
@@ -674,6 +718,9 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
   }
 
   while (index < numberOfElements || alternate) {
+    /**
+     * 子级 virtual DOM 对象
+     */
     element = arrifiedChildren[index];
 
     if (!element && alternate) {
@@ -709,6 +756,10 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
         newFiber.stateNode = (0,_misc__WEBPACK_IMPORTED_MODULE_0__.createStateNode)(newFiber);
       }
     } else if (element && !alternate) {
+      /**
+       * 初始渲染
+       * 子级 fiber 对象
+       */
       newFiber = {
         type: element.type,
         props: element.props,
@@ -718,6 +769,10 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
         stateNode: null,
         parent: fiber
       };
+      /**
+       * 为 fiber 节点添加 DOM 对象或组件的实例对象
+       */
+
       newFiber.stateNode = (0,_misc__WEBPACK_IMPORTED_MODULE_0__.createStateNode)(newFiber);
     } // 为父级 fiber 添加 子级 fiber
 
@@ -747,6 +802,9 @@ var reconcileChildren = function reconcileChildren(fiber, children) {
 
 
 var executeTask = function executeTask(fiber) {
+  /**
+   * 构建子级 fiber 对象
+   */
   if (fiber.tag === "class_component") {
     // 更新state
     if (fiber.stateNode.__fiber && fiber.stateNode.__fiber.partialState) {
@@ -758,14 +816,22 @@ var executeTask = function executeTask(fiber) {
     reconcileChildren(fiber, fiber.stateNode(fiber.props));
   } else {
     reconcileChildren(fiber, fiber.props.children);
-  } // 构建左侧节点的 fiber 对象
-  // 如果子级存在 返回子级
-  // 将这个子级当作父级 构建这个父级下的子级
+  }
+  /**
+   * 构建左侧节点的 fiber 对象
+   * 如果子级存在 返回子级
+   * 将这个子级当作父级 构建这个父级下的子级
+   */
 
 
   if (fiber.child) {
     return fiber.child;
   }
+  /**
+   * 如果存在同级 返回同级 构建同级的子级
+   * 如果同级不存在 返回父级 看父级是否有同级
+   */
+
 
   var currentExecutelyFiber = fiber;
 
@@ -843,6 +909,10 @@ var render = function render(element, dom) {
 
   requestIdleCallback(performTask);
 };
+/**
+ * state 更改时 调用该方法 创建任务 执行更新操作
+ */
+
 var scheduleUpdate = function scheduleUpdate(instance, partialState) {
   taskQueue.push({
     from: "class_component",
